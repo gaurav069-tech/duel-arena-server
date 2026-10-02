@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duel Arena - Admin Panel</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        .header {
+            background: #1a1a1a;
+            padding: 20px 30px;
+            border-bottom: 2px solid #00e5ff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            color: #00e5ff;
+            font-size: 24px;
+        }
+        .header .logout {
+            background: #ff5252;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+        }
+        .login-box {
+            background: #1a1a1a;
+            padding: 40px;
+            border-radius: 16px;
+            width: 350px;
+            border: 1px solid #333;
+        }
+        .login-box h2 {
+            color: #00e5ff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .login-box input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 15px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+        }
+        .login-box button {
+            width: 100%;
+            padding: 14px;
+            background: #00e5ff;
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .container {
+            padding: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: #1a1a1a;
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 4px solid #00e5ff;
+        }
+        .stat-card .number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #00e5ff;
+        }
+        .stat-card .label {
+            color: #888;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 12px 24px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #888;
+            font-weight: bold;
+        }
+        .tab.active {
+            background: #00e5ff;
+            color: #000;
+            border-color: #00e5ff;
+        }
+        .table-container {
+            background: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background: #252525;
+            padding: 15px;
+            text-align: left;
+            color: #00e5ff;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #252525;
+            font-size: 14px;
+        }
+        tr:hover {
+            background: #252525;
+        }
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .badge.active { background: #4caf50; color: white; }
+        .badge.banned { background: #ff5252; color: white; }
+        .badge.suspended { background: #ff9800; color: black; }
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        .btn.ban { background: #ff5252; color: white; }
+        .btn.activate { background: #4caf50; color: white; }
+        .btn.suspend { background: #ff9800; color: black; }
+        .btn.delete { background: #333; color: white; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="loginScreen">
+    <div class="login-container">
+        <div class="login-box">
+            <h2>🔐 Admin Login</h2>
+            <input type="password" id="adminPassword" placeholder="Enter admin password" />
+            <button onclick="adminLogin()">Login</button>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Panel -->
+<div id="adminPanel" class="hidden">
+    <div class="header">
+        <h1>🎮 Duel Arena - Admin Panel</h1>
+        <button class="logout" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="container">
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="number" id="totalUsers">0</div>
+                <div class="label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="activeUsers">0</div>
+                <div class="label">Active Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="bannedUsers">0</div>
+                <div class="label">Banned</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="activeRooms">0</div>
+                <div class="label">Active Rooms</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalGames">0</div>
+                <div class="label">Total Games</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('users', this)">👥 Users</div>
+            <div class="tab" onclick="showTab('rooms', this)">🎮 Rooms</div>
+            <div class="tab" onclick="showTab('history', this)">📜 History</div>
+        </div>
+
+        <!-- Users Tab -->
+        <div id="usersTab">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>W/L</th>
+                            <th>Last Login</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Rooms Tab -->
+        <div id="roomsTab" class="hidden">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Code</th>
+                            <th>Player 1</th>
+                            <th>Player 2</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="roomsTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- History Tab -->
+        <div id="historyTab" class="hidden">
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Room</th>
+                            <th>Player 1</th>
+                            <th>Player 2</th>
+                            <th>Winner</th>
+                            <th>Score</th>
+                            <th>Played At</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let adminPassword = '';
+
+function adminLogin() {
+    const pass = document.getElementById('adminPassword').value;
+
+    fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pass })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            adminPassword = pass;
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('adminPanel').classList.remove('hidden');
+            loadStats();
+            loadUsers();
+        } else {
+            alert('Wrong password!');
+        }
+    })
+    .catch(e => alert('Error: ' + e.message));
+}
+
+function logout() {
+    adminPassword = '';
+    document.getElementById('adminPanel').classList.add('hidden');
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('adminPassword').value = '';
+}
+
+function loadStats() {
+    fetch('/api/admin/stats', {
+        headers: { 'x-admin-password': adminPassword }
+    })
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById('totalUsers').textContent = data.totalUsers;
+        document.getElementById('activeUsers').textContent = data.activeUsers;
+        document.getElementById('bannedUsers').textContent = data.bannedUsers;
+        document.getElementById('activeRooms').textContent = data.activeRooms;
+        document.getElementById('totalGames').textContent = data.totalGames;
+    });
+}
+
+function loadUsers() {
+    fetch('/api/admin/users', {
+        headers: { 'x-admin-password': adminPassword }
+    })
+    .then(r => r.json())
+    .then(users => {
+        const tbody = document.getElementById('usersTable');
+        tbody.innerHTML = '';
+
+        users.forEach(u => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${u.id}</td>
+                <td>${u.username}</td>
+                <td>${u.email || '-'}</td>
+                <td><span class="badge ${u.status}">${u.status}</span></td>
+                <td>${u.wins}/${u.losses}</td>
+                <td>${u.last_login || 'Never'}</td>
+                <td>
+                    ${u.status !== 'active' ? `<button class="btn activate" onclick="changeStatus(${u.id}, 'active')">Activate</button>` : ''}
+                    ${u.status !== 'banned' ? `<button class="btn ban" onclick="changeStatus(${u.id}, 'banned')">Ban</button>` : ''}
+                    ${u.status !== 'suspended' ? `<button class="btn suspend" onclick="changeStatus(${u.id}, 'suspended')">Suspend</button>` : ''}
+                    <button class="btn delete" onclick="deleteUser(${u.id})">Delete</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    });
+}
+
+function changeStatus(userId, status) {
+    fetch(`/api/admin/users/${userId}/status`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'x-admin-password': adminPassword
+        },
+        body: JSON.stringify({ status })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            loadUsers();
+            loadStats();
+        }
+    });
+}
+
+function deleteUser(userId) {
+    if (!confirm('Delete this user?')) return;
+
+    fetch(`/api/admin/users/${userId}`, {
+        method: 'DELETE',
+        headers: { 'x-admin-password': adminPassword }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            loadUsers();
+            loadStats();
+        }
+    });
+}
+
+function loadRooms() {
+    fetch('/api/admin/rooms', {
+        headers: { 'x-admin-password': adminPassword }
+    })
+    .then(r => r.json())
+    .then(rooms => {
+        const tbody = document.getElementById('roomsTable');
+        tbody.innerHTML = '';
+
+        rooms.forEach(r => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${r.id}</td>
+                <td>${r.code}</td>
+                <td>${r.player1_name || '-'}</td>
+                <td>${r.player2_name || '-'}</td>
+                <td><span class="badge ${r.status}">${r.status}</span></td>
+                <td>${r.created_at}</td>
+                <td>
+                    <button class="btn delete" onclick="deleteRoom(${r.id})">Delete</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    });
+}
+
+function deleteRoom(roomId) {
+    if (!confirm('Delete this room?')) return;
+
+    fetch(`/api/admin/rooms/${roomId}`, {
+        method: 'DELETE',
+        headers: { 'x-admin-password': adminPassword }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) loadRooms();
+    });
+}
+
+function loadHistory() {
+    fetch('/api/admin/history', {
+        headers: { 'x-admin-password': adminPassword }
+    })
+    .then(r => r.json())
+    .then(history => {
+        const tbody = document.getElementById('historyTable');
+        tbody.innerHTML = '';
+
+        history.forEach(h => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${h.room_code}</td>
+                <td>${h.player1_name || '-'}</td>
+                <td>${h.player2_name || '-'}</td>
+                <td>${h.winner_name || '-'}</td>
+                <td>${h.player1_score} - ${h.player2_score}</td>
+                <td>${h.played_at}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    });
+}
+
+function showTab(tab, element) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    element.classList.add('active');
+
+    document.getElementById('usersTab').classList.add('hidden');
+    document.getElementById('roomsTab').classList.add('hidden');
+    document.getElementById('historyTab').classList.add('hidden');
+
+    if (tab === 'users') {
+        document.getElementById('usersTab').classList.remove('hidden');
+        loadUsers();
+    } else if (tab === 'rooms') {
+        document.getElementById('roomsTab').classList.remove('hidden');
+        loadRooms();
+    } else if (tab === 'history') {
+        document.getElementById('historyTab').classList.remove('hidden');
+        loadHistory();
+    }
+}
+</script>
+
+</body>
+</html>
